@@ -16,20 +16,30 @@ class Where implements ClauseInterface {
 	const LOGIC_AND = "AND";
 	const LOGIC_OR = "OR";
 
+	/**
+	 * @var string $logic
+	 */
 	private string $logic;
+
+	/**
+	 * @var string $column
+	 */
 	private string $column;
+
+	/**
+	 * @var string $operator
+	 */
 	private string $operator;
+
+	/**
+	 * @var mixed $value
+	 */
 	private mixed $value;
 
+	/**
+	 * @var int $arrayINCounter
+	 */
 	private int $arrayINCounter;
-
-	private array $specials = [
-		self::TYPE_NULL,
-		self::TYPE_NOT_NULL,
-		self::TYPE_BETWEEN,
-		self::TYPE_IN,
-		self::TYPE_NOT_IN,
-	];
 
 	/**
 	 * Initialize the column, operator, and value for the SQL clause.
