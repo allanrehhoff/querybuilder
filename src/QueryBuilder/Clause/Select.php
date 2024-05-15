@@ -23,6 +23,10 @@ class Select implements ClauseInterface {
 	 * {@inheritdoc}
 	 */
 	public function getString(ClientInterface $iClient): string {
+		if ($this->columns === '*') {
+			return "SELECT *";
+		}
+
 		return "SELECT " . implode(' ', Utilities::traverse(
 			$this->columns,
 			[$iClient, "wrap"]

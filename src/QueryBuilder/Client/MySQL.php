@@ -10,10 +10,6 @@ class MySQL implements ClientInterface {
 	 * {@inheritdoc}
 	 */
 	public function wrap(string|array $identifier): string {
-		if ($identifier === '*') {
-			return $identifier;
-		}
-
 		$parts = explode('.', $identifier);
 
 		foreach ($parts as &$part) {
