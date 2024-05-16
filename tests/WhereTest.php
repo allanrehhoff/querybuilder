@@ -2,7 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-class SelectWhereTest extends TestCase {
+class WhereTest extends TestCase {
 	public function testWhereEquals() {
 		$expect = "SELECT * FROM `table` WHERE `column` = :column";
 		$result = qb()->select("*")->from("table")->where("column", "value")->compose();
