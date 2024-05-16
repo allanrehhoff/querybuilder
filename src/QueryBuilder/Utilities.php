@@ -13,7 +13,7 @@ class Utilities {
 	 */
 	public static function traverse(array &$items, callable $callback): array {
 		foreach ($items as $key => $value) {
-			$items[$key] == $callback($value);
+			$items[$key] = $callback($value);
 		}
 
 		return $items;

@@ -27,7 +27,7 @@ class Select implements ClauseInterface {
 			return "SELECT *";
 		}
 
-		return "SELECT " . implode(' ', Utilities::traverse(
+		return "SELECT " . implode(', ', Utilities::traverse(
 			$this->columns,
 			[$iClient, "wrap"]
 		));

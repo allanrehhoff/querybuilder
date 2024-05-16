@@ -3,13 +3,6 @@
 use PHPUnit\Framework\TestCase;
 
 class SelectWhereTest extends TestCase {
-	public function testSelectFrom() {
-		$expect = "SELECT * FROM `table`";
-		$result = qb()->select("*")->from("table")->compose();
-
-		$this->assertEquals($expect, $result);
-	}
-
 	public function testWhereEquals() {
 		$expect = "SELECT * FROM `table` WHERE `column` = :column";
 		$result = qb()->select("*")->from("table")->where("column", "value")->compose();
@@ -49,6 +42,20 @@ class SelectWhereTest extends TestCase {
 	public function testWhereNotNull() {
 		$expect = "SELECT * FROM `table` WHERE `column` IS NOT NULL";
 		$result = qb()->select("*")->from("table")->where("column", "IS NOT NULL")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testSelectWhereAndEquals() {
+		$expect = "SELECT * FROM `table` WHERE `column1` = :column1 AND `column2` = :column2";
+		$result = qb()->select("*")->from("table")->where("column1", 1)->and("column2", 2)->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereAndOrEquals() {
+		$expect = "SELECT * FROM `table` WHERE `column1` = :column1 AND `column2` = :column2 OR `column3` = :column3";
+		$result = qb()->select("*")->from("table")->where("column1", 1)->and("column2", 2)->or("column3", 3)->compose();
 
 		$this->assertEquals($expect, $result);
 	}

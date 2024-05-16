@@ -33,6 +33,26 @@ interface QueryBuilderInterface {
 	public function where(string $key, string $operator, mixed $value = null): self;
 
 	/**
+	 * Add a AND clause to the query.
+	 *
+	 * @param string $key The column name.
+	 * @param string $operator The comparison operator.
+	 * @param mixed $value The value to compare against.
+	 * @return $this
+	 */
+	public function and(string $key, string $operator, mixed $value = null): self;
+
+	/**
+	 * Add a OR clause to the query.
+	 *
+	 * @param string $key The column name.
+	 * @param string $operator The comparison operator.
+	 * @param mixed $value The value to compare against.
+	 * @return $this
+	 */
+	public function or(string $key, string $operator, mixed $value = null): self;
+
+	/**
 	 * Add a JOIN clause to the query.
 	 *
 	 * @param string $table The table to join.

@@ -69,6 +69,22 @@ class QueryBuilder implements QueryBuilderInterface {
 	}
 
 	/**
+	 * {@inheritdoc}
+	 */
+	public function and(string $key, string $operator, mixed $value = null): self {
+		$this->clauses['where'][] = new Where($key, $operator, $value, Where::LOGIC_AND);
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function or(string $key, string $operator, mixed $value = null): self {
+		$this->clauses['where'][] = new Where($key, $operator, $value, Where::LOGIC_OR);
+		return $this;
+	}
+
+	/**
 	 * Add a JOIN clause to the query.
 	 *
 	 * @param string $table The table to join.
