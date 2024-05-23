@@ -4,17 +4,67 @@ namespace QueryBuilder\Clause;
 
 use \QueryBuilder\Contract\ClientInterface;
 use \QueryBuilder\Contract\ClauseInterface;
+use \QueryBuilder\Common\Operator;
 
 class Where implements ClauseInterface {
 	const TYPE_NULL = "IS NULL";
 	const TYPE_NOT_NULL = "IS NOT NULL";
 	const TYPE_BETWEEN = "BETWEEN";
+	const TYPE_NOT_BETWEEN = "NOT BETWEEN";
 	const TYPE_IN = "IN";
 	const TYPE_NOT_IN = "NOT IN";
 
 	const LOGIC_WHERE = "WHERE";
 	const LOGIC_AND = "AND";
 	const LOGIC_OR = "OR";
+
+	private static array $operators = [
+		'='           => '=',
+		'<'           => '<',
+		'>'           => '>',
+		'<='          => '<=',
+		'>='          => '>=',
+		'<>'          => '<>',
+		'<=>'         => '<=>',
+		'!='          => '!=',
+		'LIKE'        => 'LIKE',
+		'NOT LIKE'    => 'NOT LIKE',
+		'BETWEEN'     => 'BETWEEN',
+		'NOT BETWEEN' => 'NOT BETWEEN',
+		'ILIKE'       => 'ILIKE',
+		'NOT ILIKE'   => 'NOT ILIKE',
+		'EXISTS'      => 'EXISTS',
+		'NOT EXIST'   => 'NOT EXIST',
+		'RLIKE'       => 'RLIKE',
+		'NOT RLIKE'   => 'NOT RLIKE',
+		'REGEXP'      => 'REGEXP',
+		'NOT REGEXP'  => 'NOT REGEXP',
+		'MATCH'       => 'MATCH',
+		'IS NULL' 	  => 'IS NULL',
+		'IS NOT NULL' => 'IS NOT NULL',
+		'IN' 		  => 'IN',
+		'NOT IN' 	  => 'NOT IN',
+		'&'           => '&',
+		'|'           => '|',
+		'^'           => '^',
+		'<<'          => '<<',
+		'>>'          => '>>',
+		'~'           => '~',
+		'~='          => '~=',
+		'~*'          => '~*',
+		'!~'          => '!~',
+		'!~*'         => '!~*',
+		'#'           => '#',
+		'&&'          => '&&',
+		'@>'          => '@>',
+		'<@'          => '<@',
+		'||'          => '||',
+		'&<'          => '&<',
+		'&>'          => '&>',
+		'-|-'         => '-|-',
+		'@@'          => '@@',
+		'!!'          => '!!',
+	];
 
 	/**
 	 * @var string $logic
@@ -37,38 +87,39 @@ class Where implements ClauseInterface {
 	private mixed $value;
 
 	/**
-	 * @var int $arrayINCounter
+	 * @var int $parameterCounter
 	 */
-	private int $arrayINCounter;
+	private static int $parameterCounter;
 
 	/**
 	 * Initialize the column, operator, and value for the SQL clause.
 	 * @param string $column
 	 * @param string $operator
 	 * @param mixed $value
+	 * @throws \InvalidArgumentException
 	 */
 	public function __construct(string $column, string $operator, mixed $value = null, string $logic) {
 		if ($logic !== self::LOGIC_WHERE && $logic !== self::LOGIC_AND && $logic !== self::LOGIC_OR) {
 			throw new \InvalidArgumentException(sprintf("%s is not a valid clause", $logic));
 		}
 
-		$operator = trim(strtoupper($operator));
+		$compare = trim(strtoupper($operator));
 
-		if ($operator === self::TYPE_NULL || $operator === self::TYPE_NOT_NULL) {
+		if ($compare === self::TYPE_NULL || $compare === self::TYPE_NOT_NULL) {
 			$this->operator = $operator;
 			$this->value = null; // Explicitly set value to null
-		} elseif ($operator === self::TYPE_BETWEEN) {
+		} elseif ($compare === self::TYPE_BETWEEN || $compare === self::TYPE_NOT_BETWEEN) {
 			if (!is_array($value)) {
-				throw new \InvalidArgumentException(sprintf("%s expects an array as its value", $operator));
+				throw new \InvalidArgumentException(sprintf("%s expects an array as its value", $compare));
 			} else if (count($value) !== 2) {
-				throw new \InvalidArgumentException(sprintf("%s expects an array with exactly two indices", $operator));
+				throw new \InvalidArgumentException(sprintf("%s expects an array with exactly two indices", $compare));
 			}
 
 			$this->operator = $operator;
 			$this->value = $value; // Expecting an array with two elements
-		} elseif ($operator === self::TYPE_IN || $operator === self::TYPE_NOT_IN) {
+		} elseif ($compare === self::TYPE_IN || $compare === self::TYPE_NOT_IN) {
 			if (!is_array($value)) {
-				throw new \InvalidArgumentException(sprintf("%s expects an array as its value", $operator));
+				throw new \InvalidArgumentException(sprintf("%s expects an array as its value", $compare));
 			}
 
 			$this->operator = $operator;
@@ -83,34 +134,36 @@ class Where implements ClauseInterface {
 			}
 		}
 
+		isset(self::$operators[$this->operator]) || throw new \InvalidArgumentException(sprintf("Operator '%s' is not allowed.", $this->operator));
+
 		$this->column = $column;
 		$this->logic = $logic;
+
+		self::$parameterCounter = 0;
 	}
 
 	/**
 	 * {@inheritdoc}
 	 */
 	public function getString(ClientInterface $iClient): string {
-		//$column = $this->column;
 		$string = $this->logic . ' ';
 
 		if ($this->value === null) {
 			$string .= $iClient->wrap($this->column) . ' ' . $this->operator;
-		} else if ($this->operator === self::TYPE_BETWEEN) {
-			[$start, $end] = $this->value;
-			$string .= $iClient->wrap($this->column) . ' ' . self::TYPE_BETWEEN . ' ' . $start . " " . self::LOGIC_AND . " " . $end;
+		} else if ($this->operator === self::TYPE_BETWEEN || $this->operator === self::TYPE_NOT_BETWEEN) {
+			//[$start, $end] = $this->value;
+			$string .= $iClient->wrap($this->column) . ' ' . $this->operator . ' :val' . static::$parameterCounter++ . ' ' . self::LOGIC_AND . ' :val' . static::$parameterCounter++;
 		} else if ($this->operator == self::TYPE_IN || $this->operator == self::TYPE_NOT_IN) {
 			$list = [];
 
 			foreach ($this->value as $item) {
-				$key = "val" . $this->arrayINCounter++;
+				$key = "val" . static::$parameterCounter++;
 				$list[$key]  = $item;
-				//$this->filters[$key] = $item;
 			}
 
 			// (:val0, :val1, :val2)
 			$in = "(:" . implode(", :", array_keys($list)) . ')';
-			$string .= self::TYPE_IN . ' ' . $in;
+			$string .= $iClient->wrap($this->column) . ' ' . $this->operator . ' ' . $in;
 		} else {
 			$string .= $iClient->keys(
 				$this->column,
