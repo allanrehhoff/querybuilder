@@ -1,6 +1,6 @@
 > [!CAUTION]
-> This project is still in a very early stage, and should be considered unstable.  
-> You should not use this in a production environemnt.
+> This project is still in a very early stage, and is to be considered unstable.  
+> You should not use this library in a production environemnt.
 
 # \QueryBuilder\QueryBuilder
 
