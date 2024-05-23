@@ -59,4 +59,53 @@ class WhereTest extends TestCase {
 
 		$this->assertEquals($expect, $result);
 	}
+
+	public function testWhereIn() {
+		$expect = "SELECT * FROM `table` WHERE `column1` IN (:val0, :val1, :val2)";
+		$result = qb()->select("*")->from("table")->where("column1", "IN", [1, 2, 3])->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereNotIn() {
+		$expect = "SELECT * FROM `table` WHERE `column1` NOT IN (:val0, :val1, :val2)";
+		$result = qb()->select("*")->from("table")->where("column1", "NOT IN", [1, 2, 3])->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereBetween() {
+		$expect = "SELECT * FROM `table` WHERE `column1` BETWEEN :val0 AND :val1";
+		$result = qb()->select("*")->from("table")->where("column1", "BETWEEN", [1, 2])->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereBetweenAnd() {
+		$expect = "SELECT * FROM `table` WHERE `column1` BETWEEN :val0 AND :val1 AND `column2` BETWEEN :val2 AND :val3";
+		$result = qb()->select("*")->from("table")->where("column1", "BETWEEN", [1, 2])->and("column2", "BETWEEN", [1, 2])->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereBetweenOr() {
+		$expect = "SELECT * FROM `table` WHERE `column1` BETWEEN :val0 AND :val1 OR `column2` BETWEEN :val2 AND :val3";
+		$result = qb()->select("*")->from("table")->where("column1", "BETWEEN", [1, 2])->or("column2", "BETWEEN", [1, 2])->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereBetweenUsingSameColumn() {
+		$expect = "SELECT * FROM `table` WHERE `column1` BETWEEN :val0 AND :val1 OR `column1` BETWEEN :val2 AND :val3";
+		$result = qb()->select("*")->from("table")->where("column1", "BETWEEN", [1, 2])->or("column1", "BETWEEN", [1, 2])->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereNowBetween() {
+		$expect = "SELECT * FROM `table` WHERE `column1` NOT BETWEEN :val0 AND :val1";
+		$result = qb()->select("*")->from("table")->where("column1", "NOT BETWEEN", [1, 2])->compose();
+
+		$this->assertEquals($expect, $result);
+	}
 }
