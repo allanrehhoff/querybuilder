@@ -3,7 +3,8 @@ use \QueryBuilder\Client\MySQL;
 use \QueryBuilder\QueryBuilder;
 
 ini_set("display_errors", 1);
-error_reporting(E_ALL);
+
+array_key_exists('RUN', $_ENV) or die("Test suite should not be invoked directly, use 'composer run tests' instead\n");
 
 require __DIR__ . "/../autoload.php";
 

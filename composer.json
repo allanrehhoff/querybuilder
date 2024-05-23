@@ -1,0 +1,11 @@
+{
+    "name": "allanrehhoff/querybuilder",
+    "description": "Yet another querybuilder",
+    "type": "library",
+    "license": "MIT",
+    "scripts": {
+        "tests": "RUN= phpunit --display-warnings --display-deprecations"
+    },
+    "minimum-stability": "stable",
+    "require": {}
+}
