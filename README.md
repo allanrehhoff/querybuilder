@@ -4,6 +4,8 @@
 
 # \QueryBuilder\QueryBuilder
 
+A proof of concept personal project.  
+
 Constructs SQL statements, for [\Database\Connection](https://github.com/allanrehhoff/database) to query.  
 
 Inspect the `tests/` directory for proof of concept usages.

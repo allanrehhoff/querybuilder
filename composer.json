@@ -2,7 +2,7 @@
     "name": "allanrehhoff/querybuilder",
     "description": "Yet another querybuilder",
     "type": "library",
-    "license": "MIT",
+    "license": "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International",
     "scripts": {
         "tests": "RUN= phpunit --display-warnings --display-deprecations"
     },
