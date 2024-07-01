@@ -87,9 +87,16 @@ class Where implements ClauseInterface {
 	private mixed $value;
 
 	/**
+	 * Parameters used by this clause
+	 *
+	 * @var array
+	 */
+	private array $params = [];
+
+	/**
 	 * @var int $parameterCounter
 	 */
-	private static int $parameterCounter;
+	private static int $parameterCounter = 0;
 
 	/**
 	 * Initialize the column, operator, and value for the SQL clause.
@@ -105,25 +112,53 @@ class Where implements ClauseInterface {
 
 		$compare = trim(strtoupper($operator));
 
+		if($logic == self::LOGIC_WHERE) {
+			static::$parameterCounter = 0;
+		}
+
 		if ($compare === self::TYPE_NULL || $compare === self::TYPE_NOT_NULL) {
 			$this->operator = $operator;
-			$this->value = null; // Explicitly set value to null
+
+			// Explicitly set value to null
+			$this->value = null;
+			$params = [$column => null];
 		} elseif ($compare === self::TYPE_BETWEEN || $compare === self::TYPE_NOT_BETWEEN) {
+			$params = [];
+			$between = [];
+
 			if (!is_array($value)) {
 				throw new \InvalidArgumentException(sprintf("%s expects an array as its value", $compare));
 			} else if (count($value) !== 2) {
 				throw new \InvalidArgumentException(sprintf("%s expects an array with exactly two indices", $compare));
 			}
 
+			foreach ($value as $item) {
+				$key = "val" . static::$parameterCounter++;
+				$between[] = ':' . $key; 
+				$params[$key]  = $item;
+			}
+
+			$value = implode(' ' . self::LOGIC_AND . ' ', $between);
+			
 			$this->operator = $operator;
 			$this->value = $value; // Expecting an array with two elements
 		} elseif ($compare === self::TYPE_IN || $compare === self::TYPE_NOT_IN) {
+			$params = [];
+
 			if (!is_array($value)) {
 				throw new \InvalidArgumentException(sprintf("%s expects an array as its value", $compare));
 			}
 
+			foreach ($value as $item) {
+				$key = "val" . static::$parameterCounter++;
+				$params[$key]  = $item;
+			}
+
+			// (:val0, :val1, :val2)
+			$in = "(:" . implode(", :", array_keys($params)) . ')';
+
 			$this->operator = $operator;
-			$this->value = $value; // Expecting an array
+			$this->value = $in; // Expecting an array
 		} else {
 			if ($value === null) {
 				$this->operator = '=';
@@ -132,14 +167,15 @@ class Where implements ClauseInterface {
 				$this->operator = $operator;
 				$this->value = $value;
 			}
+
+			$params = [$column => $this->value];
 		}
 
 		isset(self::$operators[$this->operator]) || throw new \InvalidArgumentException(sprintf("Operator '%s' is not allowed.", $this->operator));
 
+		$this->params = array_merge($this->params, $params);
 		$this->column = $column;
 		$this->logic = $logic;
-
-		self::$parameterCounter = 0;
 	}
 
 	/**
@@ -151,19 +187,9 @@ class Where implements ClauseInterface {
 		if ($this->value === null) {
 			$string .= $iClient->wrap($this->column) . ' ' . $this->operator;
 		} else if ($this->operator === self::TYPE_BETWEEN || $this->operator === self::TYPE_NOT_BETWEEN) {
-			//[$start, $end] = $this->value;
-			$string .= $iClient->wrap($this->column) . ' ' . $this->operator . ' :val' . static::$parameterCounter++ . ' ' . self::LOGIC_AND . ' :val' . static::$parameterCounter++;
+			$string .= $iClient->wrap($this->column) . ' ' . $this->operator . ' ' . $this->value;
 		} else if ($this->operator == self::TYPE_IN || $this->operator == self::TYPE_NOT_IN) {
-			$list = [];
-
-			foreach ($this->value as $item) {
-				$key = "val" . static::$parameterCounter++;
-				$list[$key]  = $item;
-			}
-
-			// (:val0, :val1, :val2)
-			$in = "(:" . implode(", :", array_keys($list)) . ')';
-			$string .= $iClient->wrap($this->column) . ' ' . $this->operator . ' ' . $in;
+			$string .= $iClient->wrap($this->column) . ' ' . $this->operator . ' ' . $this->value;
 		} else {
 			$string .= $iClient->keys(
 				$this->column,

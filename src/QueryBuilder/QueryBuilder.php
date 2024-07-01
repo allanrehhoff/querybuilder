@@ -146,8 +146,22 @@ class QueryBuilder implements QueryBuilderInterface {
 	// 	return $this;
 	// }
 
+	/**
+	 * Get all related query parameters
+	 *
+	 * @return array
+	 */
 	public function getParams(): array {
-		return $this->params;
+		$params = [];
+
+		foreach ($this->clauses["where"] as $iClause) {
+			$params = array_merge(
+				$params,
+				$iClause->getParams()
+			);
+		}
+
+		return $params;
 	}
 
 	/**
