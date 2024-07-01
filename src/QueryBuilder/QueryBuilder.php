@@ -85,12 +85,7 @@ class QueryBuilder implements QueryBuilderInterface {
 	}
 
 	/**
-	 * Add a JOIN clause to the query.
-	 *
-	 * @param string $table The table to join.
-	 * @param string $foreignkey The foreign key to use for the join.
-	 * 
-	 * @return $this
+	 * {@inheritdoc}
 	 */
 	// public function join(string $table, string $foreignkey): self {
 	// 	$this->components['join'][] = new Structures\Join($table, $foreignkey);
@@ -98,11 +93,7 @@ class QueryBuilder implements QueryBuilderInterface {
 	// }
 
 	/**
-	 * Add a GROUP BY clause to the query.
-	 *
-	 * @param string|array $columns The column(s) to group by.
-	 * 
-	 * @return $this
+	 * {@inheritdoc}
 	 */
 	// public function groupBy($columns): self {
 	// 	$this->components['groupBy'][] = new Structures\GroupBy($columns);
@@ -110,12 +101,7 @@ class QueryBuilder implements QueryBuilderInterface {
 	// }
 
 	/**
-	 * Add an ORDER BY clause to the query.
-	 *
-	 * @param string|array $columns The column(s) to order by.
-	 * @param string $direction The sort direction (ASC or DESC).
-	 * 
-	 * @return $this
+	 * {@inheritdoc}
 	 */
 	// public function orderBy($columns, string $direction = 'ASC'): self {
 	// 	$this->components['orderBy'][] = new Structures\OrderBy($columns, $direction);
@@ -123,11 +109,7 @@ class QueryBuilder implements QueryBuilderInterface {
 	// }
 
 	/**
-	 * Add a LIMIT clause to the query.
-	 *
-	 * @param int $limit The maximum number of rows to return.
-	 * 
-	 * @return $this
+	 * {@inheritdoc}
 	 */
 	// public function limit(int $limit): self {
 	// 	$this->components['limit'][] = new Structures\Limit($limit);
@@ -135,11 +117,7 @@ class QueryBuilder implements QueryBuilderInterface {
 	// }
 
 	/**
-	 * Add an OFFSET clause to the query.
-	 *
-	 * @param int $offset The number of rows to skip.
-	 * 
-	 * @return $this
+	 * {@inheritdoc}
 	 */
 	// public function offset(int $offset): self {
 	// 	$this->components['offset'][] = new Structures\Offset($offset);
@@ -147,11 +125,9 @@ class QueryBuilder implements QueryBuilderInterface {
 	// }
 
 	/**
-	 * Get all related query parameters
-	 *
-	 * @return array
+	 * {@inheritdoc}
 	 */
-	public function getParams(): array {
+	public function params(): array {
 		$params = [];
 
 		foreach ($this->clauses["where"] as $iClause) {
@@ -165,9 +141,7 @@ class QueryBuilder implements QueryBuilderInterface {
 	}
 
 	/**
-	 * Generate the SQL query string.
-	 *
-	 * @return string The SQL query string.
+	 * {@inheritdoc}
 	 */
 	public function compose(): string {
 		$strings = [];
