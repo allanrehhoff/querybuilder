@@ -108,4 +108,86 @@ class WhereTest extends TestCase {
 
 		$this->assertEquals($expect, $result);
 	}
+
+	public function testWhereLike() {
+		$expect = "SELECT * FROM `table` WHERE `column` LIKE :column";
+		$result = qb()->select("*")->from("table")->where("column", "LIKE", "%value%")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereNotLike() {
+		$expect = "SELECT * FROM `table` WHERE `column` NOT LIKE :column";
+		$result = qb()->select("*")->from("table")->where("column", "NOT LIKE", "%value%")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereNotEqual() {
+		$expect = "SELECT * FROM `table` WHERE `column` != :column";
+		$result = qb()->select("*")->from("table")->where("column", "!=", "value")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereLessThanOrEqual() {
+		$expect = "SELECT * FROM `table` WHERE `column` <= :column";
+		$result = qb()->select("*")->from("table")->where("column", "<=", "value")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereNotEqualSpaceship() {
+		$expect = "SELECT * FROM `table` WHERE `column` <=> :column";
+		$result = qb()->select("*")->from("table")->where("column", "<=>", "value")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereLikeCaseInsensitive() {
+		$expect = "SELECT * FROM `table` WHERE `column` ILIKE :column";
+		$result = qb()->select("*")->from("table")->where("column", "ILIKE", "%value%")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereNotLikeCaseInsensitive() {
+		$expect = "SELECT * FROM `table` WHERE `column` NOT ILIKE :column";
+		$result = qb()->select("*")->from("table")->where("column", "NOT ILIKE", "%value%")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereExistsWithSubquery() {
+        // Example of using a subquery as a value
+        $subquery = qb()->select("*")->from("subtable")->where("subcolumn", "=", "subvalue");
+        $expect = "SELECT * FROM `table` WHERE EXISTS (" . $subquery->compose() . ")";
+        $result = qb()->select("*")->from("table")->where("column", "EXISTS", $subquery)->compose();
+
+        $this->assertEquals($expect, $result);
+    }
+
+	public function testWhereNotExistsWithSubquery() {
+		// Example of using a subquery as a value
+		$subquery = qb()->select("*")->from("subtable")->where("subcolumn", "=", "subvalue");
+		$expect = "SELECT * FROM `table` WHERE NOT EXISTS (" . $subquery->compose() . ")";
+		$result = qb()->select("*")->from("table")->where("column", "NOT EXISTS", $subquery)->compose();
+	
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereRegExp() {
+		$expect = "SELECT * FROM `table` WHERE `column` REGEXP :column";
+		$result = qb()->select("*")->from("table")->where("column", "REGEXP", "value")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
+	public function testWhereNotRegExp() {
+		$expect = "SELECT * FROM `table` WHERE `column` NOT REGEXP :column";
+		$result = qb()->select("*")->from("table")->where("column", "NOT REGEXP", "value")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
+
 }

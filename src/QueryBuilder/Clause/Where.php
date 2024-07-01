@@ -5,6 +5,7 @@ namespace QueryBuilder\Clause;
 use \QueryBuilder\Contract\ClientInterface;
 use \QueryBuilder\Contract\ClauseInterface;
 use \QueryBuilder\Common\Operator;
+use \QueryBuilder\QueryBuilder;
 
 class Where implements ClauseInterface {
 	const TYPE_NULL = "IS NULL";
@@ -13,6 +14,8 @@ class Where implements ClauseInterface {
 	const TYPE_NOT_BETWEEN = "NOT BETWEEN";
 	const TYPE_IN = "IN";
 	const TYPE_NOT_IN = "NOT IN";
+	const TYPE_EXISTS = "EXISTS";
+	const TYPE_NOT_EXISTS = "NOT EXISTS";
 
 	const LOGIC_WHERE = "WHERE";
 	const LOGIC_AND = "AND";
@@ -34,7 +37,7 @@ class Where implements ClauseInterface {
 		'ILIKE'       => 'ILIKE',
 		'NOT ILIKE'   => 'NOT ILIKE',
 		'EXISTS'      => 'EXISTS',
-		'NOT EXIST'   => 'NOT EXIST',
+		'NOT EXISTS'  => 'NOT EXISTS',
 		'RLIKE'       => 'RLIKE',
 		'NOT RLIKE'   => 'NOT RLIKE',
 		'REGEXP'      => 'REGEXP',
@@ -116,7 +119,11 @@ class Where implements ClauseInterface {
 			static::$parameterCounter = 0;
 		}
 
-		if ($compare === self::TYPE_NULL || $compare === self::TYPE_NOT_NULL) {
+		if ($value instanceof QueryBuilder) {
+            $this->operator = $operator;
+            $this->value = '(' . $value->compose() . ')'; // Wrap subquery in parentheses
+			$params = $value->params();
+        } else if ($compare === self::TYPE_NULL || $compare === self::TYPE_NOT_NULL) {
 			$this->operator = $operator;
 
 			// Explicitly set value to null
@@ -179,6 +186,15 @@ class Where implements ClauseInterface {
 	}
 
 	/**
+	 * Get parameters related to this clause
+	 * 
+	 * @return array
+	 */
+	public function getParams(): array {
+		return $this->params;
+	}
+
+	/**
 	 * {@inheritdoc}
 	 */
 	public function getString(ClientInterface $iClient): string {
@@ -190,6 +206,8 @@ class Where implements ClauseInterface {
 			$string .= $iClient->wrap($this->column) . ' ' . $this->operator . ' ' . $this->value;
 		} else if ($this->operator == self::TYPE_IN || $this->operator == self::TYPE_NOT_IN) {
 			$string .= $iClient->wrap($this->column) . ' ' . $this->operator . ' ' . $this->value;
+		} else if($this->operator == self::TYPE_EXISTS || $this->operator == self::TYPE_NOT_EXISTS) {
+			$string .= $this->operator . ' ' . $this->value;
 		} else {
 			$string .= $iClient->keys(
 				$this->column,

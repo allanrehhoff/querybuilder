@@ -95,15 +95,15 @@ interface QueryBuilderInterface {
 	// public function offset(int $offset): self;
 
 	/**
-	 * Generate the SQL query string.
-	 * @return string The SQL query string.
-	 */
-	public function compose(): string;
-
-	/**
 	 * Get the parameters for prepared statement.
 	 *
 	 * @return array The parameters.
 	 */
-	public function getParams(): array;
+	public function params(): array;
+
+	/**
+	 * Generate the SQL query string.
+	 * @return string The SQL query string.
+	 */
+	public function compose(): string;
 }
