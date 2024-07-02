@@ -53,6 +53,16 @@ interface QueryBuilderInterface {
 	public function or(string $key, string $operator, mixed $value = null): self;
 
 	/**
+	 * Add a HAVING clause to the query
+	 *
+	 * @param string $key
+	 * @param string $operator
+	 * @param mixed $value
+	 * @return self
+	 */
+	public function having(string $key, string $operator, mixed $value = null): self;
+
+	/**
 	 * Add a JOIN clause to the query.
 	 *
 	 * @param string $table The table to join.

@@ -31,6 +31,7 @@ class QueryBuilder implements QueryBuilderInterface {
 		'from' => [],
 		'join' => [],
 		'where' => [],
+		'having' => [],
 		'groupBy' => [],
 		'orderBy' => [],
 		'limit' => [],
@@ -81,6 +82,14 @@ class QueryBuilder implements QueryBuilderInterface {
 	 */
 	public function or(string $key, string $operator, mixed $value = null): self {
 		$this->clauses['where'][] = new Where($key, $operator, $value, Where::LOGIC_OR);
+		return $this;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function having(string $key, string $operator, mixed $value = null): self {
+		$this->clauses['having'][] = new Where($key, $operator, $value, Where::LOGIC_HAVING);
 		return $this;
 	}
 

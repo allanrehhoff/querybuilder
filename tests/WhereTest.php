@@ -190,4 +190,10 @@ class WhereTest extends TestCase {
 		$this->assertEquals($expect, $result);
 	}
 
+	public function testHavingClause() {
+		$expect = "SELECT * FROM `table` HAVING `column` > :column";
+		$result = qb()->select("*")->from("table")->having("column", ">", "value")->compose();
+
+		$this->assertEquals($expect, $result);
+	}
 }

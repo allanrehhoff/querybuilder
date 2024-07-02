@@ -20,6 +20,7 @@ class Where implements ClauseInterface {
 	const LOGIC_WHERE = "WHERE";
 	const LOGIC_AND = "AND";
 	const LOGIC_OR = "OR";
+	const LOGIC_HAVING = "HAVING";
 
 	private static array $operators = [
 		'='           => '=',
@@ -109,7 +110,7 @@ class Where implements ClauseInterface {
 	 * @throws \InvalidArgumentException
 	 */
 	public function __construct(string $column, string $operator, mixed $value = null, string $logic) {
-		if ($logic !== self::LOGIC_WHERE && $logic !== self::LOGIC_AND && $logic !== self::LOGIC_OR) {
+		if ($logic !== self::LOGIC_WHERE && $logic !== self::LOGIC_AND && $logic !== self::LOGIC_OR && $logic !== self::LOGIC_HAVING) {
 			throw new \InvalidArgumentException(sprintf("%s is not a valid clause", $logic));
 		}
 
